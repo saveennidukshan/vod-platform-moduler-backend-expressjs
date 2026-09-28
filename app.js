@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import errorHandler from './src/middlewares/errorHandler.js';
 import authRouter from './src/modules/auth/auth.routes.js';
+import usersRouter from './src/modules/users/user.routes.js';
 import authConfig from './src/configs/auth.config.js';
 
 const app = express();
@@ -29,6 +30,7 @@ app.use(cookieParser());
 
 app.use('/uploads', express.static('uploads'));
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/users', usersRouter);
 
 app.use(errorHandler);
 

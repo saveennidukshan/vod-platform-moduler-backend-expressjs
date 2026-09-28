@@ -1,7 +1,8 @@
 import { AppError } from '../utils/errors.js';
 
-const validator = (schema) => (req, res, next) => {
-  const { error, value } = schema.validate(req.body, {
+const validator = (schema, source = 'body') => (req, res, next) => {
+  const target = req[source] || {};
+  const { error, value } = schema.validate(target, {
     abortEarly: false,
     stripUnknown: true,
   });
@@ -14,7 +15,17 @@ const validator = (schema) => (req, res, next) => {
     );
   }
 
-  req.body = value;
+  if (source === 'body') {
+    req.body = value;
+    return next();
+  }
+
+  const targetRef = req[source] || {};
+  for (const key of Object.keys(targetRef)) {
+    delete targetRef[key];
+  }
+  Object.assign(targetRef, value);
+
   return next();
 };
 

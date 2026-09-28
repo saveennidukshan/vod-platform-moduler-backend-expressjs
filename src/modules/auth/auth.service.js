@@ -70,7 +70,7 @@ const buildTokenBundle = async ({ user, ip, userAgent, family, previousJti }) =>
   };
 };
 
-export const register = async ({ email, password, role }, context) => {
+export const register = async ({ email, password }, context) => {
   const normalizedEmail = String(email || '').trim().toLowerCase();
   const existing = await findUserByEmail(normalizedEmail);
   if (existing) {
@@ -81,7 +81,7 @@ export const register = async ({ email, password, role }, context) => {
   const user = await createUser({
     email: normalizedEmail,
     passwordHash,
-    role: role || 'user',
+    role: 'user',
     isEmailVerified: false,
   });
 
