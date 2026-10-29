@@ -46,7 +46,7 @@ The repository now includes a production-oriented auth module under:
 Use secure values in production:
 
 ```env
-APP_Port=3000
+APP_PORT=3000
 NODE_ENV=development
 
 JWT_ACCESS_SECRET=change_me_access
@@ -59,6 +59,7 @@ RESET_TOKEN_EXPIRES_IN=15m
 BCRYPT_SALT_ROUNDS=12
 
 FRONTEND_ORIGIN=http://localhost:3000
+TRUST_PROXY=0
 COOKIE_SECURE=false
 COOKIE_SAMESITE=strict
 REFRESH_TOKEN_COOKIE_NAME=refreshToken
@@ -86,6 +87,12 @@ EMAIL_USER=
 EMAIL_PASS=
 APP_NAME=vod-platform
 ```
+
+In production, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `JWT_ACTION_SECRET`, and
+`REFRESH_TOKEN_HASH_SECRET` must be independently generated secrets of at least 32
+characters. The application rejects insecure defaults at startup. Set `COOKIE_SECURE=true`
+when serving over HTTPS and configure `TRUST_PROXY` only when the deployment is behind a
+trusted reverse proxy.
 
 ## Auth endpoints
 
@@ -179,6 +186,14 @@ npm run lint
 npm test -- --runInBand tests/auth.test.js
 npm run dev
 ```
+
+Operational endpoints:
+
+- `GET /health/live` — process liveness probe.
+- `GET /health/ready` — application readiness probe.
+
+All responses include an `x-request-id` header and a request ID in error responses. Clients
+may provide a safe `x-request-id` value for distributed tracing; otherwise one is generated.
 
 ## Testing coverage added
 

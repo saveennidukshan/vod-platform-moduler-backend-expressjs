@@ -3,12 +3,24 @@ import cors from 'cors';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import crypto from 'crypto';
 import errorHandler from './src/middlewares/errorHandler.js';
 import authRouter from './src/modules/auth/auth.routes.js';
 import usersRouter from './src/modules/users/user.routes.js';
 import authConfig from './src/configs/auth.config.js';
+import { apiRateLimiter } from './src/middlewares/rateLimit.middleware.js';
 
 const app = express();
+
+app.disable('x-powered-by');
+app.set('trust proxy', process.env.TRUST_PROXY || (authConfig.isProduction ? 1 : false));
+
+app.use((req, res, next) => {
+  const requestId = req.get('x-request-id');
+  req.id = requestId && /^[a-zA-Z0-9._-]{8,128}$/.test(requestId) ? requestId : crypto.randomUUID();
+  res.setHeader('x-request-id', req.id);
+  next();
+});
 
 app.use(
   cors({
@@ -24,13 +36,28 @@ app.use(
 );
 app.use(helmet());
 app.use(compression());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(apiRateLimiter);
+app.use(express.json({ limit: '1mb', strict: true }));
+app.use(express.urlencoded({ extended: false, limit: '100kb' }));
 app.use(cookieParser());
 
-app.use('/uploads', express.static('uploads'));
+app.get('/health/live', (req, res) =>
+  res.status(200).json({ success: true, status: 'ok', requestId: req.id })
+);
+app.get('/health/ready', (req, res) =>
+  res.status(200).json({ success: true, status: 'ready', requestId: req.id })
+);
+
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', usersRouter);
+
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Route not found',
+    requestId: req.id,
+  });
+});
 
 app.use(errorHandler);
 
