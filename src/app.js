@@ -9,6 +9,7 @@ import authRouter from './modules/auth/auth.routes.js';
 import usersRouter from './modules/users/user.routes.js';
 import authConfig from './config/auth.js';
 import { apiRateLimiter } from './http/middleware/rate-limit.js';
+import { hasDatabase, isDatabaseHealthy } from './infrastructure/database/prisma.js';
 
 const app = express();
 
@@ -44,9 +45,28 @@ app.use(cookieParser());
 app.get('/health/live', (req, res) =>
   res.status(200).json({ success: true, status: 'ok', requestId: req.id })
 );
-app.get('/health/ready', (req, res) =>
-  res.status(200).json({ success: true, status: 'ready', requestId: req.id })
-);
+app.get('/health/ready', async (req, res) => {
+  try {
+    await isDatabaseHealthy();
+    return res.status(200).json({
+      success: true,
+      status: 'ready',
+      database: hasDatabase ? 'connected' : 'in-memory',
+      requestId: req.id,
+    });
+  } catch (error) {
+    console.error('[health.ready]', {
+      requestId: req.id,
+      error: error.message,
+    });
+    return res.status(503).json({
+      success: false,
+      status: 'not_ready',
+      database: 'unavailable',
+      requestId: req.id,
+    });
+  }
+});
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', usersRouter);

@@ -17,7 +17,11 @@ export const sendAuthEmail = async ({ email, subject, text, html }) => {
       html,
     });
     return true;
-  } catch {
+  } catch (error) {
+    console.error('[auth.email] Failed to send email.', {
+      subject,
+      error: error.message,
+    });
     return false;
   }
 };
