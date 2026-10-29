@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model UserAuth {
+  id                         String    @id @db.VarChar(36)
+  email                      String    @unique @db.VarChar(255)
+  passwordHash               String    @map("password_hash") @db.VarChar(255)
+  role                       String    @default("user") @db.VarChar(32)
+  isEmailVerified            Boolean   @default(false) @map("is_email_verified")
+  failedLoginAttempts        Int       @default(0) @map("failed_login_attempts")
+  lockUntil                  DateTime? @map("lock_until")
+  passwordChangedAt          DateTime? @map("password_changed_at")
+  tokenVersion               Int       @default(0) @map("token_version")
+  resetPasswordTokenHash     String?   @map("reset_password_token_hash") @db.VarChar(255)
+  resetPasswordExpiresAt     DateTime? @map("reset_password_expires_at")
+  emailVerificationTokenHash String?   @map("email_verification_token_hash") @db.VarChar(255)
+  emailVerificationExpiresAt DateTime? @map("email_verification_expires_at")
+  createdAt                  DateTime  @map("created_at")
+  updatedAt                  DateTime  @map("updated_at")
+
+  @@index([role])
+  @@index([createdAt])
+  @@map("users_auth")
+}
+
+model RefreshToken {
+  id           Int       @id @default(autoincrement())
+  userId       String    @map("user_id") @db.VarChar(36)
+  tokenJti     String    @unique @map("token_jti") @db.VarChar(64)
+  tokenFamily  String    @map("token_family") @db.VarChar(64)
+  tokenHash    String    @map("token_hash") @db.VarChar(255)
+  expiresAt    DateTime  @map("expires_at")
+  revokedAt    DateTime? @map("revoked_at")
+  replacedByJti String?  @map("replaced_by_jti") @db.VarChar(64)
+  createdIp    String?   @map("created_ip") @db.VarChar(128)
+  userAgent    String?   @map("user_agent")
+  createdAt    DateTime  @map("created_at")
+
+  @@index([userId])
+  @@index([tokenFamily])
+  @@map("refresh_tokens")
+}
