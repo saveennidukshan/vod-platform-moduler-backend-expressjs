@@ -15,7 +15,7 @@ src/
 ├── http/
 │   └── middleware/                # Transport-level request middleware
 ├── infrastructure/
-│   ├── database/                  # MySQL connection and database adapters
+│   ├── database/                  # Prisma/PostgreSQL database client
 │   ├── mail/                      # SMTP transport
 │   ├── persistence/               # In-memory development/test adapters
 │   └── storage/                   # Upload/storage adapters
@@ -85,12 +85,8 @@ RESET_RATE_LIMIT_WINDOW_MS=900000
 RESET_RATE_LIMIT_MAX=5
 REFRESH_TOKEN_HASH_SECRET=change_me_hash_secret
 
-# Optional DB mode (MySQL). If omitted, in-memory storage is used.
-DB_HOST=
-DB_PORT=3306
-DB_USER=
-DB_PASSWORD=
-DB_NAME=
+# PostgreSQL database URL. If omitted, in-memory storage is used.
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/vod_platform?schema=public
 
 # Optional email
 EMAIL_USER=
@@ -192,10 +188,17 @@ Authorization: ******
 
 ```bash
 npm install
+npm run prisma:generate
+npm run prisma:migrate -- --name init
 npm run lint
 npm test -- --runInBand tests/auth.test.js
 npm run dev
 ```
+
+The application uses Prisma ORM with PostgreSQL. Set `DATABASE_URL` before starting the
+server, then run `npm run prisma:migrate -- --name init` for a local development database.
+Use `npm run prisma:deploy` in deployment environments. When `DATABASE_URL` is not set,
+the existing in-memory adapters are used for tests and local development.
 
 Operational endpoints:
 

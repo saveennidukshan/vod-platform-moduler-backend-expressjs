@@ -1,4 +1,5 @@
 import app from './app.js';
+import { disconnectDatabase } from './infrastructure/database/prisma.js';
 
 const port = Number(process.env.APP_PORT || process.env.APP_Port || 3000);
 const server = app.listen(port, () => {
@@ -12,7 +13,7 @@ const shutdown = (signal) => {
       console.error('Graceful shutdown failed.', error);
       process.exitCode = 1;
     }
-    process.exit();
+    disconnectDatabase().finally(() => process.exit());
   });
 };
 

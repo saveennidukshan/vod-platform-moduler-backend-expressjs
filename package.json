@@ -10,13 +10,18 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:deploy": "prisma migrate deploy",
+    "prisma:studio": "prisma studio"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@prisma/client": "^6.19.3",
     "bcryptjs": "^3.0.3",
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",
@@ -29,7 +34,6 @@
     "joi": "^18.1.2",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.1.1",
-    "mysql2": "^3.20.0",
     "nodemailer": "^10.3.1"
   },
   "devDependencies": {
@@ -40,6 +44,7 @@
     "jest": "^30.4.2",
     "nodemon": "^3.1.14",
     "prettier": "^3.8.3",
+    "prisma": "^6.19.3",
     "supertest": "^7.2.2"
   }
 }
