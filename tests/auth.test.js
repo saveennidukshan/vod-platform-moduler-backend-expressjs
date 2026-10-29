@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, test } from '@jest/globals';
 import request from 'supertest';
-import app from '../app.js';
-import { clearRateLimitBucketsForTests } from '../src/middlewares/rateLimit.middleware.js';
-import { resetInMemoryStore } from '../src/models/inMemoryStore.js';
+import app from '../src/app.js';
+import { clearRateLimitBucketsForTests } from '../src/http/middleware/rate-limit.js';
+import { resetInMemoryStore } from '../src/infrastructure/persistence/in-memory-store.js';
 import { findUserByEmail, updateUser } from '../src/modules/users/user.service.js';
-import { hashToken } from '../src/utils/crypto.js';
-import { signActionToken } from '../src/utils/jwt.js';
+import { hashToken } from '../src/shared/security/crypto.js';
+import { signActionToken } from '../src/shared/security/jwt.js';
 
 const authBase = '/api/v1/auth';
 
@@ -27,7 +27,9 @@ describe('Auth Module', () => {
     const email = uniqueEmail();
     const password = 'StrongPass@1234';
 
-    const registerResponse = await request(app).post(`${authBase}/register`).send({ email, password });
+    const registerResponse = await request(app)
+      .post(`${authBase}/register`)
+      .send({ email, password });
 
     expect(registerResponse.statusCode).toBe(201);
     expect(registerResponse.body.success).toBe(true);
@@ -56,9 +58,7 @@ describe('Auth Module', () => {
     expect(response.body.success).toBe(false);
   });
 
-  test(
-    'locked account blocks login after repeated failures',
-    async () => {
+  test('locked account blocks login after repeated failures', async () => {
     const email = uniqueEmail();
     const password = 'StrongPass@1234';
 
@@ -70,9 +70,7 @@ describe('Auth Module', () => {
 
     const response = await request(app).post(`${authBase}/login`).send({ email, password });
     expect(response.statusCode).toBe(423);
-    },
-    15000
-  );
+  }, 15000);
 
   test('invalid access token is rejected on protected endpoint', async () => {
     const response = await request(app).get(`${authBase}/me`).set('Authorization', '******');
@@ -87,7 +85,10 @@ describe('Auth Module', () => {
     const agent = request.agent(app);
 
     const registerResponse = await agent.post(`${authBase}/register`).send({ email, password });
-    const firstRefreshToken = extractCookieValue(registerResponse.headers['set-cookie'], 'refreshToken');
+    const firstRefreshToken = extractCookieValue(
+      registerResponse.headers['set-cookie'],
+      'refreshToken'
+    );
     const firstCsrfToken = extractCookieValue(registerResponse.headers['set-cookie'], 'csrfToken');
 
     const refreshResponse = await agent
@@ -103,7 +104,8 @@ describe('Auth Module', () => {
 
     expect(reuseResponse.statusCode).toBe(401);
 
-    const secondCsrfToken = extractCookieValue(refreshResponse.headers['set-cookie'], 'csrfToken') || firstCsrfToken;
+    const secondCsrfToken =
+      extractCookieValue(refreshResponse.headers['set-cookie'], 'csrfToken') || firstCsrfToken;
     const revokedFamilyResponse = await agent
       .post(`${authBase}/refresh-token`)
       .set('x-csrf-token', secondCsrfToken)
@@ -119,7 +121,10 @@ describe('Auth Module', () => {
     await request(app).post(`${authBase}/register`).send({ email, password });
 
     const user = await findUserByEmail(email.toLowerCase());
-    const token = signActionToken({ sub: user.id, purpose: 'reset_password', tokenVersion: user.tokenVersion }, '10m');
+    const token = signActionToken(
+      { sub: user.id, purpose: 'reset_password', tokenVersion: user.tokenVersion },
+      '10m'
+    );
 
     await updateUser(user.id, {
       resetPasswordTokenHash: hashToken(token),

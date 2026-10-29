@@ -1,5 +1,5 @@
-import { db, hasDatabase } from '../../configs/db.js';
-import { inMemoryRefreshTokens } from '../../models/inMemoryStore.js';
+import { db, hasDatabase } from '../../../infrastructure/database/mysql.js';
+import { inMemoryRefreshTokens } from '../../../infrastructure/persistence/in-memory-store.js';
 
 let initialized = false;
 
@@ -76,7 +76,9 @@ export const findRefreshTokenByJti = async (jti) => {
     return token ? { ...token } : null;
   }
 
-  const [rows] = await db.execute('SELECT * FROM refresh_tokens WHERE token_jti = ? LIMIT 1', [jti]);
+  const [rows] = await db.execute('SELECT * FROM refresh_tokens WHERE token_jti = ? LIMIT 1', [
+    jti,
+  ]);
   return mapTokenRow(rows[0]);
 };
 
@@ -96,7 +98,10 @@ export const revokeRefreshTokenByJti = async (jti, replacedByJti = null) => {
     return { ...updated };
   }
 
-  await db.execute('UPDATE refresh_tokens SET revoked_at = ?, replaced_by_jti = ? WHERE token_jti = ?', [revokedAt, replacedByJti, jti]);
+  await db.execute(
+    'UPDATE refresh_tokens SET revoked_at = ?, replaced_by_jti = ? WHERE token_jti = ?',
+    [revokedAt, replacedByJti, jti]
+  );
   return findRefreshTokenByJti(jti);
 };
 
@@ -116,7 +121,10 @@ export const revokeRefreshTokenFamily = async (family) => {
     return;
   }
 
-  await db.execute('UPDATE refresh_tokens SET revoked_at = COALESCE(revoked_at, ?) WHERE token_family = ?', [revokedAt, family]);
+  await db.execute(
+    'UPDATE refresh_tokens SET revoked_at = COALESCE(revoked_at, ?) WHERE token_family = ?',
+    [revokedAt, family]
+  );
 };
 
 export const revokeRefreshTokensByUserId = async (userId) => {
@@ -135,5 +143,8 @@ export const revokeRefreshTokensByUserId = async (userId) => {
     return;
   }
 
-  await db.execute('UPDATE refresh_tokens SET revoked_at = COALESCE(revoked_at, ?) WHERE user_id = ?', [revokedAt, userId]);
+  await db.execute(
+    'UPDATE refresh_tokens SET revoked_at = COALESCE(revoked_at, ?) WHERE user_id = ?',
+    [revokedAt, userId]
+  );
 };

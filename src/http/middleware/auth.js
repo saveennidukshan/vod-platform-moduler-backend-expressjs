@@ -1,5 +1,5 @@
-import { AppError } from '../utils/errors.js';
-import { verifyAccessToken } from '../utils/jwt.js';
+import { AppError } from '../../shared/errors/app-error.js';
+import { verifyAccessToken } from '../../shared/security/jwt.js';
 
 export const protect = (req, res, next) => {
   const header = req.headers.authorization || '';

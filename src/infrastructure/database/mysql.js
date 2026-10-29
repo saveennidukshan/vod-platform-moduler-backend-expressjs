@@ -3,7 +3,10 @@ import mysql from 'mysql2/promise';
 let pool;
 
 const hasDbConfig =
-  process.env.DB_HOST && process.env.DB_USER && process.env.DB_PASSWORD !== undefined && process.env.DB_NAME;
+  process.env.DB_HOST &&
+  process.env.DB_USER &&
+  process.env.DB_PASSWORD !== undefined &&
+  process.env.DB_NAME;
 
 if (hasDbConfig) {
   pool = mysql.createPool({

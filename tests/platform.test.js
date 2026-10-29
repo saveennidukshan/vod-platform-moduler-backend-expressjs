@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 import request from 'supertest';
-import app from '../app.js';
+import app from '../src/app.js';
 
 describe('Platform hardening', () => {
   test('exposes liveness and propagates a safe request id', async () => {

@@ -4,27 +4,37 @@ Backend for a Video On Demand (VOD) platform built with Node.js.
 
 ## Authentication module
 
-The repository now includes a production-oriented auth module under:
+The backend follows a production-oriented layered and feature-based structure:
 
-- `src/modules/auth/`
-  - `auth.controller.js`
-  - `auth.service.js`
-  - `auth.routes.js`
-  - `auth.validation.js`
-  - `auth.tokens.js`
-  - `auth.model.js`
-  - `auth.token.model.js`
-- `src/modules/users/`
-  - `user.model.js`
-  - `user.service.js`
-- `src/middlewares/`
-  - `auth.middleware.js`
-  - `errorHandler.js`
-  - `rateLimit.middleware.js`
-- `src/utils/`
-  - `crypto.js`
-  - `jwt.js`
-  - `email.js`
+```text
+src/
+├── app.js                         # Express application composition
+├── server.js                      # HTTP process bootstrap and shutdown
+├── config/                        # Environment-backed application configuration
+│   └── auth.js
+├── http/
+│   └── middleware/                # Transport-level request middleware
+├── infrastructure/
+│   ├── database/                  # MySQL connection and database adapters
+│   ├── mail/                      # SMTP transport
+│   ├── persistence/               # In-memory development/test adapters
+│   └── storage/                   # Upload/storage adapters
+├── modules/
+│   ├── auth/                      # Authentication feature
+│   │   └── repositories/          # Auth persistence adapters
+│   ├── users/                     # User management feature
+│   │   └── repositories/
+│   └── movies/                    # Movie feature boundary
+└── shared/
+    ├── errors/                    # Application error types
+    ├── http/                      # Shared response helpers
+    ├── messaging/                 # Email/message helpers
+    └── security/                  # Crypto, JWT, HMAC, and password helpers
+```
+
+Feature modules own their routes, controllers, validation, services, and repositories.
+Infrastructure is kept outside the domain modules so database, mail, and storage providers
+can be replaced without changing API contracts.
 
 ## Security decisions
 

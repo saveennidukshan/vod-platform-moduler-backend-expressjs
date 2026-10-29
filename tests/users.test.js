@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, test } from '@jest/globals';
 import request from 'supertest';
-import app from '../app.js';
-import { clearRateLimitBucketsForTests } from '../src/middlewares/rateLimit.middleware.js';
-import { resetInMemoryStore } from '../src/models/inMemoryStore.js';
+import app from '../src/app.js';
+import { clearRateLimitBucketsForTests } from '../src/http/middleware/rate-limit.js';
+import { resetInMemoryStore } from '../src/infrastructure/persistence/in-memory-store.js';
 import { findUserByEmail, updateUserById } from '../src/modules/users/user.service.js';
 
 const authBase = '/api/v1/auth';
@@ -39,7 +39,9 @@ describe('Users Module', () => {
     const registerResponse = await registerUser({ email, password });
     const token = registerResponse.body.data.accessToken;
 
-    const response = await request(app).get(`${usersBase}/me`).set('Authorization', authHeader(token));
+    const response = await request(app)
+      .get(`${usersBase}/me`)
+      .set('Authorization', authHeader(token));
 
     expect(response.statusCode).toBe(200);
     expect(response.body.data.user.email).toBe(email.toLowerCase());

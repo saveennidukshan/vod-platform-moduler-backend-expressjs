@@ -1,4 +1,4 @@
-import { AppError } from '../../utils/errors.js';
+import { AppError } from '../../shared/errors/app-error.js';
 import {
   countUsers,
   createUserRecord,
@@ -6,9 +6,12 @@ import {
   findUserById,
   listUsers,
   updateUser as updateUserRecord,
-} from './user.model.js';
+} from './repositories/user.repository.js';
 
-export const normalizeEmail = (email) => String(email || '').trim().toLowerCase();
+export const normalizeEmail = (email) =>
+  String(email || '')
+    .trim()
+    .toLowerCase();
 const toSortColumnMap = {
   email: 'email',
   role: 'role',

@@ -4,4 +4,4 @@ export {
   revokeRefreshTokenFamily,
   revokeRefreshTokensByUserId,
   saveRefreshToken,
-} from './auth.token.model.js';
+} from './refresh-token.repository.js';

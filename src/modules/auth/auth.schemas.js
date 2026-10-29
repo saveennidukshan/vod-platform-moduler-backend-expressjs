@@ -8,4 +8,4 @@ export {
   changePasswordSchema,
   verifyEmailSchema,
   resendVerificationEmailSchema,
-} from '../../modules/auth/auth.validation.js';
+} from './auth.validation.js';
