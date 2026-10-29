@@ -1,9 +1,14 @@
 import Joi from 'joi';
 
-const emailSchema = Joi.string().trim().lowercase().email({ tlds: { allow: false } });
+const emailSchema = Joi.string()
+  .trim()
+  .lowercase()
+  .email({ tlds: { allow: false } });
 
 export const userIdParamSchema = Joi.object({
-  id: Joi.string().guid({ version: ['uuidv4'] }).required(),
+  id: Joi.string()
+    .guid({ version: ['uuidv4'] })
+    .required(),
 });
 
 export const updateMeSchema = Joi.object({
@@ -22,6 +27,8 @@ export const listUsersQuerySchema = Joi.object({
   role: Joi.string().valid('user', 'admin'),
   isEmailVerified: Joi.boolean().truthy('true').falsy('false'),
   search: Joi.string().trim().lowercase().max(255),
-  sortBy: Joi.string().valid('createdAt', 'updatedAt', 'email', 'role', 'isEmailVerified').default('createdAt'),
+  sortBy: Joi.string()
+    .valid('createdAt', 'updatedAt', 'email', 'role', 'isEmailVerified')
+    .default('createdAt'),
   sortOrder: Joi.string().valid('asc', 'desc').default('desc'),
 });

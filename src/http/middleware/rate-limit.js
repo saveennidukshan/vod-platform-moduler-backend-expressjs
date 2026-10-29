@@ -1,5 +1,5 @@
 import rateLimit from 'express-rate-limit';
-import authConfig from '../configs/auth.config.js';
+import authConfig from '../../config/auth.js';
 
 const skipForTests = () => process.env.NODE_ENV === 'test';
 

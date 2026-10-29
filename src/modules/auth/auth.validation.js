@@ -6,7 +6,8 @@ const passwordSchema = Joi.string()
   .pattern(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])/)
   .required()
   .messages({
-    'string.pattern.base': 'Password must include uppercase, lowercase, number, and special character.',
+    'string.pattern.base':
+      'Password must include uppercase, lowercase, number, and special character.',
   });
 
 const emailSchema = Joi.string()

@@ -1,10 +1,16 @@
 import crypto from 'crypto';
-import { db, hasDatabase } from '../../configs/db.js';
-import { inMemoryUsers } from '../../models/inMemoryStore.js';
+import { db, hasDatabase } from '../../../infrastructure/database/mysql.js';
+import { inMemoryUsers } from '../../../infrastructure/persistence/in-memory-store.js';
 
 let initialized = false;
 const DEFAULT_SORT_COLUMN = 'created_at';
-const ALLOWED_SORT_COLUMNS = new Set(['email', 'role', 'is_email_verified', 'created_at', 'updated_at']);
+const ALLOWED_SORT_COLUMNS = new Set([
+  'email',
+  'role',
+  'is_email_verified',
+  'created_at',
+  'updated_at',
+]);
 
 const createDuplicateEmailError = () => {
   const error = new Error('User email already exists');
@@ -25,9 +31,13 @@ const mapUserRow = (row) => {
     passwordChangedAt: row.password_changed_at ? new Date(row.password_changed_at) : null,
     tokenVersion: Number(row.token_version || 0),
     resetPasswordTokenHash: row.reset_password_token_hash,
-    resetPasswordExpiresAt: row.reset_password_expires_at ? new Date(row.reset_password_expires_at) : null,
+    resetPasswordExpiresAt: row.reset_password_expires_at
+      ? new Date(row.reset_password_expires_at)
+      : null,
     emailVerificationTokenHash: row.email_verification_token_hash,
-    emailVerificationExpiresAt: row.email_verification_expires_at ? new Date(row.email_verification_expires_at) : null,
+    emailVerificationExpiresAt: row.email_verification_expires_at
+      ? new Date(row.email_verification_expires_at)
+      : null,
     createdAt: row.created_at ? new Date(row.created_at) : null,
     updatedAt: row.updated_at ? new Date(row.updated_at) : null,
   };
@@ -59,7 +69,12 @@ export const initUsersTable = async () => {
   initialized = true;
 };
 
-export const createUserRecord = async ({ email, passwordHash, role = 'user', isEmailVerified = false }) => {
+export const createUserRecord = async ({
+  email,
+  passwordHash,
+  role = 'user',
+  isEmailVerified = false,
+}) => {
   await initUsersTable();
   const user = {
     id: crypto.randomUUID(),
@@ -238,7 +253,11 @@ const filterUsersInMemory = (filters = {}) => {
   return [...inMemoryUsers.values()].filter((user) => {
     if (filters.searchEmail && !user.email.includes(filters.searchEmail)) return false;
     if (filters.role && user.role !== filters.role) return false;
-    if (typeof filters.isEmailVerified === 'boolean' && user.isEmailVerified !== filters.isEmailVerified) return false;
+    if (
+      typeof filters.isEmailVerified === 'boolean' &&
+      user.isEmailVerified !== filters.isEmailVerified
+    )
+      return false;
     return true;
   });
 };
@@ -252,7 +271,10 @@ export const countUsers = async (filters = {}) => {
 
   const { clauses, values } = buildUserFilters(filters);
   const whereClause = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
-  const [rows] = await db.execute(`SELECT COUNT(*) as total FROM users_auth ${whereClause}`, values);
+  const [rows] = await db.execute(
+    `SELECT COUNT(*) as total FROM users_auth ${whereClause}`,
+    values
+  );
   return Number(rows[0]?.total || 0);
 };
 

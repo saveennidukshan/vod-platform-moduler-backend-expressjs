@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { findUserByEmail } from '../modules/users/user.service.js';
+import { findUserByEmail } from '../../modules/users/user.service.js';
 
 const getUserPassword = async (email) => {
   const user = await findUserByEmail(String(email || '').toLowerCase());

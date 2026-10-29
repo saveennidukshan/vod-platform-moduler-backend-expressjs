@@ -1,8 +1,13 @@
-import authConfig from '../../configs/auth.config.js';
-import { sendAuthEmail } from '../../utils/email.js';
-import { AppError } from '../../utils/errors.js';
-import { comparePassword, hashPassword, hashToken, safeEqual } from '../../utils/crypto.js';
-import { verifyActionToken, verifyRefreshToken } from '../../utils/jwt.js';
+import authConfig from '../../config/auth.js';
+import { sendAuthEmail } from '../../shared/messaging/email.js';
+import { AppError } from '../../shared/errors/app-error.js';
+import {
+  comparePassword,
+  hashPassword,
+  hashToken,
+  safeEqual,
+} from '../../shared/security/crypto.js';
+import { verifyActionToken, verifyRefreshToken } from '../../shared/security/jwt.js';
 import {
   issueAccessToken,
   issueCsrfToken,
@@ -23,7 +28,7 @@ import {
   revokeRefreshTokenFamily,
   revokeRefreshTokensByUserId,
   saveRefreshToken,
-} from './auth.token.model.js';
+} from './repositories/refresh-token.repository.js';
 
 const authAudit = (event, details = {}) => {
   console.info('[auth.audit]', event, {

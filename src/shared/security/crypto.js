@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import authConfig from '../configs/auth.config.js';
+import authConfig from '../../config/auth.js';
 
 export const hashPassword = async (password) => {
   return bcrypt.hash(password, authConfig.bcryptSaltRounds);

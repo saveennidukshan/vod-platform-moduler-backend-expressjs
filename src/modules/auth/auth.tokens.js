@@ -1,7 +1,12 @@
 import crypto from 'crypto';
-import authConfig from '../../configs/auth.config.js';
-import { hashToken } from '../../utils/crypto.js';
-import { parseDurationMs, signAccessToken, signActionToken, signRefreshToken } from '../../utils/jwt.js';
+import authConfig from '../../config/auth.js';
+import { hashToken } from '../../shared/security/crypto.js';
+import {
+  parseDurationMs,
+  signAccessToken,
+  signActionToken,
+  signRefreshToken,
+} from '../../shared/security/jwt.js';
 
 export const issueAccessToken = (user) => {
   return signAccessToken({
@@ -12,7 +17,11 @@ export const issueAccessToken = (user) => {
   });
 };
 
-export const issueRefreshToken = ({ user, family = crypto.randomUUID(), jti = crypto.randomUUID() }) => {
+export const issueRefreshToken = ({
+  user,
+  family = crypto.randomUUID(),
+  jti = crypto.randomUUID(),
+}) => {
   const token = signRefreshToken({
     sub: user.id,
     jti,
@@ -34,7 +43,10 @@ export const issueCsrfToken = () => {
 };
 
 export const issueResetPasswordToken = (user) => {
-  const token = signActionToken({ sub: user.id, purpose: 'reset_password', tokenVersion: user.tokenVersion }, authConfig.resetTokenExpiresIn);
+  const token = signActionToken(
+    { sub: user.id, purpose: 'reset_password', tokenVersion: user.tokenVersion },
+    authConfig.resetTokenExpiresIn
+  );
 
   return {
     token,

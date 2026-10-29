@@ -78,7 +78,8 @@ export const createAuthController = ({ cookieOptions }) => ({
   },
 
   logout: async (req, res) => {
-    const refreshToken = req.cookies?.[cookieOptions.refreshTokenCookieName] || req.body.refreshToken;
+    const refreshToken =
+      req.cookies?.[cookieOptions.refreshTokenCookieName] || req.body.refreshToken;
     await logout({ refreshToken });
     clearRefreshCookies(res, cookieOptions);
     return res.status(200).json({
@@ -88,7 +89,8 @@ export const createAuthController = ({ cookieOptions }) => ({
   },
 
   refreshToken: async (req, res) => {
-    const refreshToken = req.cookies?.[cookieOptions.refreshTokenCookieName] || req.body.refreshToken;
+    const refreshToken =
+      req.cookies?.[cookieOptions.refreshTokenCookieName] || req.body.refreshToken;
     const result = await refreshSession({ refreshToken }, getContext(req));
     setRefreshCookies(res, result, cookieOptions);
 

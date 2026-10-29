@@ -1,5 +1,5 @@
-import { BadResponse } from '../helpers/responses.js';
-import { verifyAccessToken, verifyRefreshToken } from '../utils/jwt.js';
+import { BadResponse } from '../../shared/http/responses.js';
+import { verifyAccessToken, verifyRefreshToken } from '../../shared/security/jwt.js';
 
 const extractBearerToken = (value) => {
   if (!value || typeof value !== 'string') return null;

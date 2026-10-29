@@ -4,11 +4,11 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import crypto from 'crypto';
-import errorHandler from './src/middlewares/errorHandler.js';
-import authRouter from './src/modules/auth/auth.routes.js';
-import usersRouter from './src/modules/users/user.routes.js';
-import authConfig from './src/configs/auth.config.js';
-import { apiRateLimiter } from './src/middlewares/rateLimit.middleware.js';
+import errorHandler from './http/middleware/error-handler.js';
+import authRouter from './modules/auth/auth.routes.js';
+import usersRouter from './modules/users/user.routes.js';
+import authConfig from './config/auth.js';
+import { apiRateLimiter } from './http/middleware/rate-limit.js';
 
 const app = express();
 

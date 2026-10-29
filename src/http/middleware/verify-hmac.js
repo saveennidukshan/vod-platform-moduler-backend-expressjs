@@ -1,5 +1,5 @@
-import { BadResponse } from '../helpers/responses.js';
-import { validateHMAC } from '../utils/hmac.js';
+import { BadResponse } from '../../shared/http/responses.js';
+import { validateHMAC } from '../../shared/security/hmac.js';
 
 export const verifyHmac = async (req, res, next) => {
   const status = await validateHMAC(req.body);

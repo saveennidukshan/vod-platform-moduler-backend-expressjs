@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import authConfig from '../configs/auth.config.js';
+import authConfig from '../../config/auth.js';
 
 const durationUnits = {
   s: 1000,
@@ -11,7 +11,9 @@ const durationUnits = {
 export const parseDurationMs = (value) => {
   if (typeof value === 'number') return value * 1000;
   if (!value) return 0;
-  const match = String(value).trim().match(/^(\d+)([smhd])$/i);
+  const match = String(value)
+    .trim()
+    .match(/^(\d+)([smhd])$/i);
   if (!match) {
     const asSeconds = Number(value);
     return Number.isFinite(asSeconds) ? asSeconds * 1000 : 0;

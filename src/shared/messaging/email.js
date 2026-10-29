@@ -8,7 +8,7 @@ export const sendAuthEmail = async ({ email, subject, text, html }) => {
   }
 
   try {
-    const transportModule = await import('../configs/mail.js');
+    const transportModule = await import('../../infrastructure/mail/transport.js');
     await transportModule.default.sendMail({
       from: `no-reply@${process.env.APP_NAME || 'vod-platform'}`,
       to: email,

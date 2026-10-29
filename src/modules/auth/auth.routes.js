@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import validator from '../../middlewares/validator.js';
+import validator from '../../http/middleware/validator.js';
 import {
   changePasswordSchema,
   forgotPasswordSchema,
@@ -11,15 +11,15 @@ import {
   verifyEmailSchema,
 } from './auth.validation.js';
 import { createAuthController } from './auth.controller.js';
-import authConfig from '../../configs/auth.config.js';
-import { parseDurationMs } from '../../utils/jwt.js';
-import { authorize, protect, requireCsrfForCookieRefresh } from '../../middlewares/auth.middleware.js';
+import authConfig from '../../config/auth.js';
+import { parseDurationMs } from '../../shared/security/jwt.js';
+import { authorize, protect, requireCsrfForCookieRefresh } from '../../http/middleware/auth.js';
 import {
   authRouteRateLimiter,
   loginRateLimiter,
   protectedRouteRateLimiter,
   resetRateLimiter,
-} from '../../middlewares/rateLimit.middleware.js';
+} from '../../http/middleware/rate-limit.js';
 
 const route = Router();
 
@@ -56,10 +56,31 @@ route.post(
   controller.logout
 );
 route.get('/me', protectedRouteRateLimiter, protect, controller.me);
-route.post('/forgot-password', resetRateLimiter, validator(forgotPasswordSchema), controller.forgotPassword);
-route.post('/reset-password', resetRateLimiter, validator(resetPasswordSchema), controller.resetPassword);
-route.post('/change-password', authRouteRateLimiter, protect, validator(changePasswordSchema), controller.changePassword);
-route.post('/verify-email', authRouteRateLimiter, validator(verifyEmailSchema), controller.verifyEmail);
+route.post(
+  '/forgot-password',
+  resetRateLimiter,
+  validator(forgotPasswordSchema),
+  controller.forgotPassword
+);
+route.post(
+  '/reset-password',
+  resetRateLimiter,
+  validator(resetPasswordSchema),
+  controller.resetPassword
+);
+route.post(
+  '/change-password',
+  authRouteRateLimiter,
+  protect,
+  validator(changePasswordSchema),
+  controller.changePassword
+);
+route.post(
+  '/verify-email',
+  authRouteRateLimiter,
+  validator(verifyEmailSchema),
+  controller.verifyEmail
+);
 route.post(
   '/resend-verification-email',
   authRouteRateLimiter,
@@ -67,6 +88,12 @@ route.post(
   controller.resendVerificationEmail
 );
 
-route.get('/protected-sample', protectedRouteRateLimiter, protect, authorize('admin', 'user'), controller.protectedAdminSample);
+route.get(
+  '/protected-sample',
+  protectedRouteRateLimiter,
+  protect,
+  authorize('admin', 'user'),
+  controller.protectedAdminSample
+);
 
 export default route;
