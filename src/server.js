@@ -6,14 +6,22 @@ const server = app.listen(port, () => {
   console.log(`Server up and running on port ${port}`);
 });
 
+let isShuttingDown = false;
 const shutdown = (signal) => {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
   console.log(`Received ${signal}; shutting down gracefully.`);
   server.close((error) => {
     if (error) {
       console.error('Graceful shutdown failed.', error);
       process.exitCode = 1;
     }
-    disconnectDatabase().finally(() => process.exit());
+    disconnectDatabase()
+      .catch((disconnectError) => {
+        console.error('Database shutdown failed.', disconnectError);
+        process.exitCode = 1;
+      })
+      .finally(() => process.exit());
   });
 };
 

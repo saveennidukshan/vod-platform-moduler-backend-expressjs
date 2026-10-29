@@ -8,6 +8,12 @@ const hasDatabase = Boolean(process.env.DATABASE_URL);
 export const prisma = hasDatabase ? new PrismaClient() : null;
 export { hasDatabase };
 
+export const isDatabaseHealthy = async () => {
+  if (!prisma) return true;
+  await prisma.$queryRaw`SELECT 1`;
+  return true;
+};
+
 export const disconnectDatabase = async () => {
   if (prisma) await prisma.$disconnect();
 };
