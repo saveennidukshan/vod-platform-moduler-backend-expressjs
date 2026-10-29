@@ -16,6 +16,11 @@ const createLimiter = ({ windowMs, max }) =>
     },
   });
 
+export const apiRateLimiter = createLimiter({
+  windowMs: 60 * 1000,
+  max: 300,
+});
+
 export const loginRateLimiter = createLimiter({
   windowMs: authConfig.loginRateLimitWindowMs,
   max: authConfig.loginRateLimitMax,

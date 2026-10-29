@@ -10,7 +10,13 @@ import {
   issueRefreshToken,
   issueResetPasswordToken,
 } from './auth.tokens.js';
-import { createUser, findUserByEmail, findUserById, sanitizeUser, updateUser } from '../users/user.service.js';
+import {
+  createUser,
+  findUserByEmail,
+  findUserById,
+  sanitizeUser,
+  updateUser,
+} from '../users/user.service.js';
 import {
   findRefreshTokenByJti,
   revokeRefreshTokenByJti,
@@ -71,7 +77,9 @@ const buildTokenBundle = async ({ user, ip, userAgent, family, previousJti }) =>
 };
 
 export const register = async ({ email, password }, context) => {
-  const normalizedEmail = String(email || '').trim().toLowerCase();
+  const normalizedEmail = String(email || '')
+    .trim()
+    .toLowerCase();
   const existing = await findUserByEmail(normalizedEmail);
   if (existing) {
     throw new AppError('User already registered', 409);
@@ -97,7 +105,12 @@ export const register = async ({ email, password }, context) => {
     userAgent: context.userAgent,
   });
 
-  authAudit('register_success', { userId: user.id, email: user.email, ip: context.ip, userAgent: context.userAgent });
+  authAudit('register_success', {
+    userId: user.id,
+    email: user.email,
+    ip: context.ip,
+    userAgent: context.userAgent,
+  });
 
   await sendAuthEmail({
     email: user.email,
@@ -113,7 +126,9 @@ export const register = async ({ email, password }, context) => {
 };
 
 export const login = async ({ email, password }, context) => {
-  const normalizedEmail = String(email || '').trim().toLowerCase();
+  const normalizedEmail = String(email || '')
+    .trim()
+    .toLowerCase();
   const user = await findUserByEmail(normalizedEmail);
 
   if (!user) {
@@ -131,11 +146,18 @@ export const login = async ({ email, password }, context) => {
     const shouldLock = failedAttempts >= authConfig.authLockThreshold;
     await updateUser(user.id, {
       failedLoginAttempts: shouldLock ? 0 : failedAttempts,
-      lockUntil: shouldLock ? new Date(Date.now() + authConfig.authLockMinutes * 60 * 1000) : user.lockUntil,
+      lockUntil: shouldLock
+        ? new Date(Date.now() + authConfig.authLockMinutes * 60 * 1000)
+        : user.lockUntil,
     });
 
     await applyProgressiveDelay(failedAttempts);
-    authAudit('login_failed', { userId: user.id, email: user.email, ip: context.ip, userAgent: context.userAgent });
+    authAudit('login_failed', {
+      userId: user.id,
+      email: user.email,
+      ip: context.ip,
+      userAgent: context.userAgent,
+    });
     throw new AppError('Invalid email or password', 401);
   }
 
@@ -154,7 +176,12 @@ export const login = async ({ email, password }, context) => {
     userAgent: context.userAgent,
   });
 
-  authAudit('login_success', { userId: user.id, email: user.email, ip: context.ip, userAgent: context.userAgent });
+  authAudit('login_success', {
+    userId: user.id,
+    email: user.email,
+    ip: context.ip,
+    userAgent: context.userAgent,
+  });
 
   return {
     user: sanitizeUser(updated),
@@ -224,7 +251,12 @@ export const refreshSession = async ({ refreshToken }, context) => {
     previousJti: tokenRecord.tokenJti,
   });
 
-  authAudit('refresh_success', { userId: user.id, email: user.email, ip: context.ip, userAgent: context.userAgent });
+  authAudit('refresh_success', {
+    userId: user.id,
+    email: user.email,
+    ip: context.ip,
+    userAgent: context.userAgent,
+  });
 
   return {
     user: sanitizeUser(user),
@@ -241,7 +273,9 @@ export const getMe = async (userId) => {
 };
 
 export const forgotPassword = async ({ email }) => {
-  const normalizedEmail = String(email || '').trim().toLowerCase();
+  const normalizedEmail = String(email || '')
+    .trim()
+    .toLowerCase();
   const user = await findUserByEmail(normalizedEmail);
 
   if (!user) {
@@ -281,11 +315,18 @@ export const resetPassword = async ({ token, newPassword }) => {
     throw new AppError('User not found', 404);
   }
 
+  if (payload.tokenVersion !== user.tokenVersion) {
+    throw new AppError('Invalid or expired reset token', 400);
+  }
+
   if (!user.resetPasswordTokenHash || !safeEqual(user.resetPasswordTokenHash, hashToken(token))) {
     throw new AppError('Invalid or expired reset token', 400);
   }
 
-  if (!user.resetPasswordExpiresAt || new Date(user.resetPasswordExpiresAt).getTime() <= Date.now()) {
+  if (
+    !user.resetPasswordExpiresAt ||
+    new Date(user.resetPasswordExpiresAt).getTime() <= Date.now()
+  ) {
     throw new AppError('Invalid or expired reset token', 400);
   }
 
@@ -345,11 +386,21 @@ export const verifyEmail = async ({ token }) => {
     throw new AppError('User not found', 404);
   }
 
-  if (!user.emailVerificationTokenHash || !safeEqual(user.emailVerificationTokenHash, hashToken(token))) {
+  if (payload.tokenVersion !== user.tokenVersion) {
     throw new AppError('Invalid or expired verification token', 400);
   }
 
-  if (!user.emailVerificationExpiresAt || new Date(user.emailVerificationExpiresAt).getTime() <= Date.now()) {
+  if (
+    !user.emailVerificationTokenHash ||
+    !safeEqual(user.emailVerificationTokenHash, hashToken(token))
+  ) {
+    throw new AppError('Invalid or expired verification token', 400);
+  }
+
+  if (
+    !user.emailVerificationExpiresAt ||
+    new Date(user.emailVerificationExpiresAt).getTime() <= Date.now()
+  ) {
     throw new AppError('Invalid or expired verification token', 400);
   }
 
@@ -364,7 +415,9 @@ export const verifyEmail = async ({ token }) => {
 };
 
 export const resendVerificationEmail = async ({ email }) => {
-  const normalizedEmail = String(email || '').trim().toLowerCase();
+  const normalizedEmail = String(email || '')
+    .trim()
+    .toLowerCase();
   const user = await findUserByEmail(normalizedEmail);
 
   if (!user || user.isEmailVerified) {
