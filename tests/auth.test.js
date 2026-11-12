@@ -114,6 +114,22 @@ describe('Auth Module', () => {
     expect(revokedFamilyResponse.statusCode).toBe(401);
   });
 
+  test('cookie refresh requires a matching CSRF header', async () => {
+    const email = uniqueEmail();
+    const password = 'StrongPass@1234';
+    const agent = request.agent(app);
+
+    await agent.post(`${authBase}/register`).send({ email, password });
+
+    const response = await agent.post(`${authBase}/refresh-token`).send({});
+
+    expect(response.statusCode).toBe(403);
+    expect(response.body).toMatchObject({
+      success: false,
+      message: 'Invalid CSRF token',
+    });
+  });
+
   test('expired reset token is rejected', async () => {
     const email = uniqueEmail();
     const password = 'StrongPass@1234';
