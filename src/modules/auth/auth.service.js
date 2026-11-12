@@ -24,6 +24,7 @@ import {
 } from '../users/user.service.js';
 import {
   findRefreshTokenByJti,
+  claimRefreshTokenByJti,
   revokeRefreshTokenByJti,
   revokeRefreshTokenFamily,
   revokeRefreshTokensByUserId,
@@ -55,6 +56,13 @@ const buildTokenBundle = async ({ user, ip, userAgent, family, previousJti }) =>
   const csrfToken = issueCsrfToken();
   const refresh = issueRefreshToken({ user, family });
 
+  if (previousJti) {
+    const claimed = await claimRefreshTokenByJti(previousJti, refresh.jti);
+    if (!claimed) {
+      throw new AppError('Refresh token reuse detected', 401);
+    }
+  }
+
   await saveRefreshToken({
     userId: user.id,
     tokenJti: refresh.jti,
@@ -67,10 +75,6 @@ const buildTokenBundle = async ({ user, ip, userAgent, family, previousJti }) =>
     userAgent,
     createdAt: new Date(),
   });
-
-  if (previousJti) {
-    await revokeRefreshTokenByJti(previousJti, refresh.jti);
-  }
 
   return {
     accessToken,

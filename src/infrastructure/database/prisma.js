@@ -4,6 +4,9 @@ const require = createRequire(import.meta.url);
 const { PrismaClient } = require('@prisma/client');
 
 const hasDatabase = Boolean(process.env.DATABASE_URL);
+if (process.env.NODE_ENV === 'production' && !hasDatabase) {
+  throw new Error('DATABASE_URL must be configured in production.');
+}
 
 export const prisma = hasDatabase ? new PrismaClient() : null;
 export { hasDatabase };

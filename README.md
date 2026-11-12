@@ -85,7 +85,8 @@ RESET_RATE_LIMIT_WINDOW_MS=900000
 RESET_RATE_LIMIT_MAX=5
 REFRESH_TOKEN_HASH_SECRET=change_me_hash_secret
 
-# PostgreSQL database URL. If omitted, in-memory storage is used.
+# PostgreSQL database URL. Required in production; if omitted in development/test,
+# in-memory storage is used.
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/vod_platform?schema=public
 
 # Optional email
@@ -196,7 +197,8 @@ npm run dev
 ```
 
 The application uses Prisma ORM with PostgreSQL. Set `DATABASE_URL` before starting the
-server, then run `npm run prisma:migrate -- --name init` for a local development database.
+server; it is mandatory when `NODE_ENV=production`. Then run
+`npm run prisma:migrate -- --name init` for a local development database.
 Use `npm run prisma:deploy` in deployment environments. When `DATABASE_URL` is not set,
 the existing in-memory adapters are used for tests and local development.
 

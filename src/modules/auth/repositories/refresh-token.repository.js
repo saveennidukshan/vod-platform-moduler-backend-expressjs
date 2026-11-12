@@ -63,6 +63,24 @@ export const revokeRefreshTokenByJti = async (jti, replacedByJti = null) => {
   }
 };
 
+export const claimRefreshTokenByJti = async (jti, replacedByJti) => {
+  await initRefreshTokensTable();
+  const revokedAt = new Date();
+
+  if (!hasDatabase) {
+    const token = inMemoryRefreshTokens.get(jti);
+    if (!token || token.revokedAt) return false;
+    inMemoryRefreshTokens.set(jti, { ...token, revokedAt, replacedByJti });
+    return true;
+  }
+
+  const result = await prisma.refreshToken.updateMany({
+    where: { tokenJti: jti, revokedAt: null },
+    data: { revokedAt, replacedByJti },
+  });
+  return result.count === 1;
+};
+
 export const revokeRefreshTokenFamily = async (family) => {
   await initRefreshTokensTable();
   const revokedAt = new Date();

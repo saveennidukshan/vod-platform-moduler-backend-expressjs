@@ -130,6 +130,28 @@ describe('Auth Module', () => {
     });
   });
 
+  test('concurrent refresh requests accept only one token rotation', async () => {
+    const email = uniqueEmail();
+    const password = 'StrongPass@1234';
+    const registerResponse = await request(app)
+      .post(`${authBase}/register`)
+      .send({ email, password });
+    const cookies = registerResponse.headers['set-cookie'];
+    const csrfToken = extractCookieValue(cookies, 'csrfToken');
+
+    const responses = await Promise.all(
+      [1, 2].map(() =>
+        request(app)
+          .post(`${authBase}/refresh-token`)
+          .set('Cookie', cookies)
+          .set('x-csrf-token', csrfToken)
+          .send({})
+      )
+    );
+
+    expect(responses.map((response) => response.statusCode).sort()).toEqual([200, 401]);
+  });
+
   test('expired reset token is rejected', async () => {
     const email = uniqueEmail();
     const password = 'StrongPass@1234';
